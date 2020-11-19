@@ -1,9 +1,31 @@
 package br.unb.cic.soot
 
 import br.unb.cic.soot.basic.Basic11Test
+import br.unb.cic.soot.svfa.SVFAInterProcedural
 import org.scalatest.{BeforeAndAfter, FunSuite}
+import test.factory.DefinitionFactory
 
 class TestSuite extends FunSuite with BeforeAndAfter {
+
+  val CLASS_NAME_INTERPROCEDURAL: String = "samples.OverridingAssignmentInterProceduralSample"
+
+  test("test overriding assignment SVFA Analysis InterProcedural") {
+    val definition = DefinitionFactory.definition(CLASS_NAME_INTERPROCEDURAL, Array[Int](9), Array[Int](19))
+    val cp = "target/scala-2.12/test-classes"
+
+    val svfa = new SVFAInterProcedural(cp, definition)
+    svfa.buildSparseValueFlowGraph()
+
+    // for(List<Node> paths: analysis.findSourceSinkPaths()) {
+    //  System.out.println(String.join("-> " , paths.stream().map(n -> n.toString()).collect(Collectors.toList())));
+    // }
+
+    svfa.findSourceSinkPaths().forEach(paths => {
+      paths.forEach(n => println(n.toString))
+    })
+
+    assert(svfa.reportConflicts().size == 1)
+  }
 
   test("we should find exactly three conflicts in this analysis") {
     val svfa = new ArrayTest()
